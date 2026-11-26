@@ -14,7 +14,6 @@ class QuoteService {
         final List<dynamic> data = response.data as List<dynamic>;
         final map = data[0] as Map<String, dynamic>;
         
-        // Склеиваем цитату и автора и добавляем в наш список
         quotesList.add('"${map['quote']}"\n— ${map['author']}');
       }
       
