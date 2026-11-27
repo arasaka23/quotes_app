@@ -24,17 +24,20 @@ void setupService() {
       ),
     )..interceptors.addAll([
         LoggingInterceptor(),
-        PrettyDioLogger(requestHeader: true, responseBody: true, error: true),
+        PrettyDioLogger(
+          requestHeader: true,
+          requestBody: true,
+          responseBody: true,
+          responseHeader: false,
+          error: true,
+          compact: true,
+          maxWidth: 90,
+        ),
       ]),
   );
 
-  GetIt.instance.registerLazySingleton<QuoteService>(
-    () => QuoteService(),
-  );
-
-  GetIt.instance.registerFactory<QuoteCubit>(
-    () => QuoteCubit(GetIt.instance<QuoteService>()),
-  );
+  GetIt.instance.registerLazySingleton<QuoteService>(() => QuoteService());
+  GetIt.instance.registerFactory<QuoteCubit>(() => QuoteCubit(GetIt.instance<QuoteService>()));
 }
 
 class QuoteApp extends StatelessWidget {
@@ -54,8 +57,55 @@ class QuoteApp extends StatelessWidget {
             title: const Text('Мудрые мысли'),
             backgroundColor: Colors.deepPurple,
             foregroundColor: Colors.white,
+            actions: [
+              // Выпадающее меню выбора категории
+              Builder(
+                builder: (context) {
+                  final cubit = context.watch<QuoteCubit>();
+                  return DropdownButton<String>(
+                    value: cubit.currentCategory,
+                    dropdownColor: Colors.deepPurple,
+                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    underline: const SizedBox(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        cubit.setCategory(value);
+                      }
+                    },
+                    items: const [
+                      DropdownMenuItem(value: 'success', child: Text('Мотивация')),
+                      DropdownMenuItem(value: 'humor', child: Text('Юмор')),
+                      DropdownMenuItem(value: 'life', child: Text('Жизнь')),
+                      DropdownMenuItem(value: 'computers', child: Text('Технологии')),
+                    ],
+                  );
+                },
+              ),
+              // Кнопка обновления
+              Builder(
+                builder: (context) {
+                  return IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: () => context.read<QuoteCubit>().fetchQuotes(),
+                    tooltip: 'Обновить список',
+                  );
+                },
+              ),
+            ],
           ),
           body: const QuoteList(),
+          floatingActionButton: Builder(
+            builder: (context) {
+              return FloatingActionButton(
+                onPressed: () => context.read<QuoteCubit>().fetchSingleQuote(),
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+                tooltip: 'Случайная цитата',
+                child: const Icon(Icons.casino),
+              );
+            },
+          ),
         ),
       ),
     );

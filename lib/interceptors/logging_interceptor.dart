@@ -3,9 +3,7 @@ import 'package:dio/dio.dart';
 class LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-  
-    options.headers['X-Api-Key'] = '0sDliKqJmO0jWnfKKCePlN9SIFt7NiQyU1Ac8EMw';
-    
+
     print('--> REQUEST[${options.method}] => PATH: ${options.path}');
     super.onRequest(options, handler);
   }
